@@ -83,3 +83,76 @@ JS中,变量(variables)没有类型,但值(values)有类型.变量(variables)可
         // ..
     }
 但这样的话,代码就不能适应多运行环境.
+##第二章：值（Values）
+这一章主要关注在JS的内建值类型上：arrays,strings,numbers以及一些特殊值（null,undefined,NAN,-0,Infinity）.
+### 1.数组（Array）
+>JS不同于其他的类型强制语言，同一个数组的元素可以使任意类型的，从string到number，以及任何object。
+
+    var arr = ['a',10,new Date()];
+>注意：不要使用delete操作数组,此操作不会更新length属性。    
+>清空数组的几种方式：
+    
+    //1.控制length属性
+    arr.length = 0;
+    console.log(arr);// []
+    //2.直接赋值
+    arr = [];
+>尽量减少使用/创建稀疏（sparse）数组
+    
+    var arr = [];
+    arr[4] = 9;
+    console.log(arr[0]);//undefined
+    console.log(arr.length);//5
+>请不要给数组添加非数字类属性,避免影响数组的固有行为，请让数组做一个安静的美男子
+
+    arr['13'] = 13;
+    console.log(arr[13]);//13
+    console.log(arr.length);//14
+### 2.类数组（Array-Likes）：与数组一样（数字键值索引的值集合），但没有数组的一些方法
+>JS中常见的类数组有function中的arguments对象以及DOM选择器的返回值。可以通过以下方式实现类数组使用数组的方法。
+    
+    //1.ES5将类数组转换为数组
+    function foo() {
+    var arr = Array.prototype.slice.call( arguments );
+    arr.push( "z" );
+    console.log( arr );
+    }
+    foo('w','y');//['w','y','z']
+    //2.ES6中将类数组转换为数组
+     Array.from(document.getElementsByTagName('div'));//div元素数组
+     Array.from('aa');//['a','a']
+### 3.字符串（Strings）
+>我们通常会认为字符串的底层实现是字符数组，但在JS中不是，他们之间的相似只是在表面。
+
+    var a = "foo";
+    var b = ["f","o","o"];
+    console.log('a.length:',a.length);// 3
+    console.log('b.length:',b.length);// 3
+    console.log('a.indexOf( "o" ):', a.indexOf( "o" ));// 1
+    console.log('b.indexOf( "o" ):', b.indexOf( "o" ));// 1
+    console.log('a.concat( "bar" ):', a.concat( "bar" ));// foobar
+    console.log('b.concat["b","a","r"]  ):', b.concat( ["b","a","r"] ));// ["f","o","o","b","a","r"] 
+    console.log('a[0]:', a[0]);//f
+    console.log('b[0]:', b[0]);//f
+>字符串是不可变的（immutable）：
+
+    a[0]='d';
+    b[0]='d';
+    console.log('a[0]:', a[0]);//f
+    console.log('b[0]:', b[0]);//d
+>字符串可以借用一些自己没有而数组有的方法：
+
+    console.log(Array.prototype.join.call( a, "-" ));//f-o-o
+    var mapVar = Array.prototype.map.call( a, function(v){
+     return v.toUpperCase() ;
+    } ).join( "." );
+    console.log('mapVar:',mapVar);
+>但很不幸的是有些方法是不能进行借用的,例如数组的reverse,因为字符串是不可变的.
+    
+    var c = a.split('').reverse().join('');
+    console.log(c);
+>可以通过以上方式来实现字符串的reverse功能,但这中写法写只能在不能用于多字节的Unicode(𝌆).若要使用可以参考https://github.com/mathiasbynens/esrever。
+
+>总而言之，当使用字符串的时候就不要期望它有字符数组的特性，若要使用，请自己将其转换为字符数组。
+
+###3.数值（Numbers）
