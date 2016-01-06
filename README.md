@@ -155,4 +155,41 @@ JS中,变量(variables)没有类型,但值(values)有类型.变量(variables)可
 
 >总而言之，当使用字符串的时候就不要期望它有字符数组的特性，若要使用，请自己将其转换为字符数组。
 
+
 ###3.数值（Numbers）
+>在JS中，number就是所有的数值类型，是基于IEEE 754标准的双精度浮点（64位）格式。其中‘整数’就是没有小数部分数值。    
+数值中0是可以省略的，例如：
+    
+    42.0 === 42. ;//true
+    .42 === 0.42 ;//true
+>虽然看着很怪异，但确实是合法的，不鼓励使用。   
+数值可以使用科学计数法：
+    
+    var num = 5E3;
+    console.log(num);
+    console.log(num.toExponential());
+>数值会自动装箱成Number对象，调用相关的方法；    
+可以使用二进制，八进制，十六进制来标示数值：
+
+    console.log(0xf3);//243
+    console.log(0o363);//243
+    consile.log(0b11110011);//243
+>在浮点数的世界里，有一个痛点就是不能直接判断两个小数是否相等：
+    
+    0.1 + 0.2 === 0.3; // false
+    console.log(0.1+0.2);//0.30000000000000004
+>这种问题只存在小数之间，整数是绝对安全的。    
+那如何解决这种问题？那就需要使用machine epsilon = 2^-52，在ES6中已经定义了数值常量Number.EPSILON
+    
+    function numbersCloseEnoughToEqual(n1,n2) {
+        return Math.abs( n1 - n2 ) < Number.EPSILON;
+    }
+    numbersCloseEnoughToEqual(0.1 + 0.2,0.3); // true
+    numbersCloseEnoughToEqual(0.0000002,0.00000021);//false
+>安全的整数范围：Number.MAX_SAFE_INTEGER（Math.pow(2, 53)-1）,为何成为最大安全整数？
+    
+    Math.pow(2, 53) === Math.pow(2, 53) + 1 // true
+>在IEEE 754中只能安全的表示[ -2^53+1 , 2^53-1 ] 这个范围。超过这个数值范围的运算不能使用数值操作符了。    
+整数最大值：Number.MAX_VALUE （1.798e+308）Number.MIN_VALUE（ 5e-324）
+
+    
