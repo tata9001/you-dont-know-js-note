@@ -192,4 +192,80 @@ JS中,变量(variables)没有类型,但值(values)有类型.变量(variables)可
 >在IEEE 754中只能安全的表示[ -2^53+1 , 2^53-1 ] 这个范围。超过这个数值范围的运算不能使用数值操作符了。    
 整数最大值：Number.MAX_VALUE （1.798e+308）Number.MIN_VALUE（ 5e-324）
 
+### 4.特殊值
+>JS中有很多特殊值，例如，undefined,null,NAN,Infinity,-0等，我们应该注意并小心的使用。 
+
+>   * 空值    
+undefined:意思为没有值(missing value)；    
+null:意思为空值(empty value).    
+null是特殊关键字，而undefined只是一个标示符(identifier)，可以被赋值(但永远不要这么做)：
+    
+    undefined = 0;
+    console.log(undefined);//undefined
+    
+    function foo() {
+        "use strict";
+        undefined = 2; // TypeError
+    }
+    foo();
+    
+    function foo2() {
+        "use strict";
+        var undefined = 2; 
+        console.log(undefined);//2
+    }
+    foo2();
+>   * void 操作符：可以将任何值转换为undefined
+    
+    console.log(void 0);//undefined
+    console.log(void new Date());//undefined
+> 应用场景很少,有以下几种：
+    
+    //1.用于清除A标签herf响应
+    <a herf='javascript:void(0)'/>
+    //2.
+    function doSomething() {
+        if (!APP.ready) {
+            return void setTimeout( doSomething, 100 );
+        }
+        return result;
+    }
+    //3.替代undefined
+>   * NaN:not a number,表面的意思是‘不是一个数值’，当非数值对象与数值进行了数学运算后产生的值，他确切的意思应该是‘非法的数值’，因为
+
+    var a = 0/'0';
+    typeof a === 'number';//true
+>   更奇特的是它是JS中唯一一个自己不等于自己的值
+    
+    a === a;//false
+    a !== a;//true
+>   isNaN()可以用来判断一个值是不是NaN，但有一个存在了20年的bug
+
+    isNaN(a);//true
+    isNaN('a');//true
+>   ES6中提供了Number.isNaN()修复了这个问题。    
+
+>   * Infinities:Infinity(正无穷),-Infinity(负无穷)
+    
+    var a = 1 / 0;  // Infinity
+    var b = -1 / 0; // -Infinity
+    Number.MAX_VALUE * 2; //Infinity
+    Number.MAX_VALUE + Math.pow( 2, 970 );//Infinity
+    Infinity / Infinity ; //NaN
+>   You can go from finite to infinite but not from infinite back to finite.
+
+>   *Zeros:JS中存在+0和-0，他们两个是相等的：
+    
+    0 === -0;//true
+    var zero = 0/-3;
+    console.log(zero);//-0
+    console.log(zero.toString());//0
+>   在数值上没有什么意义，更多的是用来表示数据变化的趋势。
+
+>  * 特殊的相等：ES6的Object.is()提供了与===相同的作用，但在两个值上面却完全不一致：
+
+    NaN === NaN;//false
+    Object.is(NaN,NaN);//true
+    0===-0;//true
+    Object.is(0,-0);//false
     
