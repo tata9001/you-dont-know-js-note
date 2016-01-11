@@ -271,3 +271,73 @@ null是特殊关键字，而undefined只是一个标示符(identifier)，可以�
 
 ### 5.值VS引用
 >    在很多语言中，提供了语法可以控制值拷贝或者引用拷贝来进行赋值/传递，但在js中并没有提供这种机制。原始类型的赋值/传递是通过值拷贝，而除此之外的其他对象都是引用拷贝。
+
+##第三章：本地函数（Natives）
+>JS中常用的本地函数：
+    
+    String()
+    Number()
+    Boolean()
+    Array()
+    Object()
+    Function()
+    RegExp()
+    Date()
+    Error()
+    Symbol() 
+
+###1.Internal [[Class]]
+>typeof 结果为object的对象，内部有额外的一个属性[[Class]]来标示对象类型，它不能直接访问到，可以通过以下方式访问：
+
+    Object.prototype.toString.call( [1,2,3] );          // "[object Array]"
+    Object.prototype.toString.call( /regex-literal/i ); // "[object RegExp]"
+    Object.prototype.toString.call(  new Date() ); // "[object Date]"
+    Object.prototype.toString.call(  42 ); // "[object Number]"
+> 原始类型会调用它的包装类型，它们貌似打印的是对象的构造器，然而并不是，因为JS中并没有Null()和Undefined()
+
+    Object.prototype.toString.call( null );         // "[object Null]"
+    Object.prototype.toString.call( undefined );    // "[object Undefined]"
+
+### 2.包装类型
+> 永远不要显示的使用包装类型（new String('213')），直接使用原始类型即可('213')。
+> 包装类型的坑：
+    
+    var a = new Boolean( false );
+    if (!a) {
+        console.log( "Oops" ); // never runs
+    }
+>如有必要使用包装类型，建议Object()而不是new：
+    
+    var a = "abc";
+    var b = new String( a );
+    var c = Object( a );
+    
+    typeof a; // "string"
+    typeof b; // "object"
+    typeof c; // "object"
+    
+    b instanceof String; // true
+    c instanceof String; // true
+    
+    Object.prototype.toString.call( b ); // "[object String]"
+    Object.prototype.toString.call( c ); // "[object String]"
+    
+>拆箱(Unboxing)
+
+    var a = new String( "abc" );
+    var b = new Number( 42 );
+    var c = new Boolean( true );
+    
+    a.valueOf(); // "abc"
+    b.valueOf(); // 42
+    c.valueOf(); // true
+>本地函数当构造器：尽量少使用其构造器(new Array(),new Object()),多使用字面常量（[1,2,3],{}）,但new Date(),new Error()必须使用。
+
+### 3.本地函数原型（Native Prototypes）
+永远不要修改Native Prototypes的任何属性和方法。
+
+    Array.isArray( Array.prototype );   // true
+    Array.prototype.push( 1, 2, 3 );    // 3
+    Array.prototype;                    // [1,2,3]
+    var arr = new Array([]);
+    arr[0];                             // 1
